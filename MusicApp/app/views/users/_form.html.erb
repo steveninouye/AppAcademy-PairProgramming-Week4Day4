@@ -1,39 +1,37 @@
-<%= form_for @user do |form| %>
-  <% if flash[:errors].any? %>
-    <div id="error_explanation">
-      <h2><%= pluralize(flash[:errors].count, "error") %> prohibited this user from being saved:</h2>
+<% if type == "edit"
+  method = "patch"
+  url = users_url(user)
+  button_text = "Update User"
+elsif type == "new"
+  method = "post"
+  url = users_url
+  button_text = "Create User"
+elsif type == "login"
+  method = "post"
+  url = session_url
+  button_text = "Log In"
+end %>
 
-      <ul>
-      <% flash[:errors].each do |message| %>
-        <li><%= message %></li>
-      <% end %>
-      </ul>
-    </div>
-  <% end %>
+<form action="<%= url %>" method="post">
+  <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
+  <input type="hidden" name="_method" value="<%= method %>">
 
-  <div class="field">
-    <%= form.label :email %>
-    <%= form.text_field :email %>
-  </div>
+  <label>Email:
+    <input type="text" name="user[email]" value="<%= user.email %>">
+  </label>
 
-  <% if @user.valid? %>
-    <div class="field">
-      <%= form.label :password %>
-      <%= form.password_field :password %>
-    </div>
-  <% end %>
-
-  <div class="field">
-    <%= form.label :new_password %>
-    <%= form.password_field :new_password %>
-  </div>
-
-  <div class="field">
-    <%= form.label :validate_new_password %>
-    <%= form.password_field :validate_new_password %>
-  </div>
-
-  <div class="actions">
-    <%= form.submit %>
-  </div>
+  <label>Password:
+    <input type="password" name="user[password]">
+  </label>
+<% if type == "edit" %>
+  <label>New Password:
+    <input type="password" name="user[new_password]">
+  </label>
 <% end %>
+<% unless type == "login" %>
+  <label>Validate Password:
+    <input type="password" name="user[validate_new_password]">
+  </label>
+<% end %>
+  <input type="submit" value"<%= button_text %>">
+</form>

@@ -8,14 +8,13 @@ class ApplicationController < ActionController::Base
     end
   end
 
-  def login!
-    session[:session_token] = @current_user.reset_session_token!
-    @current_user.session_token
+  def login!(user=@current_user)
+    session[:session_token] = user.reset_session_token!
   end
 
   def logout!
+    @current_user.reset_session_token!
     @current_user, session[:session_token] = nil, nil
-    @user.reset_session_token!
   end
 
   def set_flash
@@ -24,8 +23,9 @@ class ApplicationController < ActionController::Base
   end
 
   def redirect_home_if_logged_in
+    p @current_user
     if @current_user
-      flash[:notice] << "You Are Logged In"
+      flash[:notices] << "You Are Logged In"
       redirect_to users_url
     end
   end

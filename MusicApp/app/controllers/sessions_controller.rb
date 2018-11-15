@@ -1,37 +1,33 @@
-class SessionController < ApplicationController
+class SessionsController < ApplicationController
   before_action :set_current_user, :set_flash
   before_action :redirect_home_if_logged_in, only: [:new]
+  before_action :get_user_params, only: [:create]
 
   def new
-    
+    @user = User.new
   end
 
   def create
-    @user = User.new(user_params)
-
-    respond_to do |format|
-      if @user.save
-        format.html { redirect_to @user, notice: 'User was successfully created.' }
-        format.json { render :show, status: :created, location: @user }
-      else
-        format.html { render :new }
-        format.json { render json: @user.errors, status: :unprocessable_entity }
-      end
+    @current_user = User.validate_login(@user_params[:email], @user_params[:password])
+    if @current_user
+      login!
+      redirect_to users_url
+    else
+      flash[:errors] << "Invalid Credentials"
+      redirect_to new_session_url
     end
   end
 
   def destroy
-    @user.destroy
-    respond_to do |format|
-      format.html { redirect_to users_url, notice: 'User was successfully destroyed.' }
-      format.json { head :no_content }
-    end
+    logout!
+    flash[:notices] << "You have been Logged Out"
+    redirect_to users_url
   end
 
   private
 
   # Never trust parameters from the scary internet, only allow the white list through.
-  def user_params
-    params.require(:user).permit(:email, :password, :validate_password)
+  def get_user_params
+    @user_params = params.require(:user).permit(:email, :password, :validate_password)
   end
 end

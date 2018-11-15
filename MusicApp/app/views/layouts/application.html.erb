@@ -9,7 +9,41 @@
     <%= javascript_include_tag 'application', 'data-turbolinks-track': 'reload' %>
   </head>
 
+  <header>
+    <% if @current_user %>
+      <form action="<%= session_url %>" method="post">
+        <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
+        <input type="hidden" name="_method" value="delete">
+        <input type="submit" value="Log Out">
+      </form>
+    <% else %>
+      <a href="<%= new_session_url %>"><button>Log In</button></a>
+      <a href="<%= new_user_url %>"><button>Sign Up</button></a>
+    <% end %>
+  </header>
   <body>
+
+    <% if flash[:errors].any? %>
+      <div id="error_explanation">
+        <h2><%= pluralize(flash[:errors].count, "error") %> prohibited this user from being saved:</h2>
+
+        <ul>
+        <% flash[:errors].each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+        </ul>
+      </div>
+    <% elsif flash[:notices].any? %>
+      <div id="error_explanation">
+        <ul>
+        <% flash[:notices].each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+
     <%= yield %>
   </body>
 </html>
