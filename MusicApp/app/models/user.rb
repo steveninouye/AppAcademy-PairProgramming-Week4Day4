@@ -23,10 +23,6 @@ class User < ApplicationRecord
     user && user.is_password?(password) ? user : nil
   end
 
-  def self.create(email, password)
-    User.new(email: email, password_digest: BCrypt::Password.create(password)).reset_session_token!
-  end
-
   def is_password?(password)
     BCrypt::Password.new(self.password_digest).is_password?(password)
   end
@@ -43,6 +39,7 @@ class User < ApplicationRecord
   def reset_session_token!
     self.set_token
     self.save!
+    self.session_token
   end
 
   def validate_other_password(password)

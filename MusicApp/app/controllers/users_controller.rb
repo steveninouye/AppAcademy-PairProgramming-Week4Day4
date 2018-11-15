@@ -1,6 +1,6 @@
 class UsersController < ApplicationController
   before_action :set_flash
-  before_action :set_current_user, only: [:show, :edit, :update, :destroy]
+  before_action :set_current_user
   before_action :get_user_params, only: [:create, :update]
 
   def index
@@ -8,35 +8,45 @@ class UsersController < ApplicationController
   end
 
   def show
-    return redirect_to new_session_url unless is_logged_in?
+    return redirect_to new_session_url unless @current_user
   end
 
   def new
     # if user is logged in, return them to their profile
-    @user = User.new
+    @current_user = User.new
   end
 
   def edit
-    return redirect_to new_session_url unless is_logged_in?
+    return redirect_to new_session_url unless @current_user
   end
 
   def create
-    @user = User.new(email: @user_params[:email], password: @user_params[:new_password]).set_token
-    flash[:errors] << "Passwords Do Not Match" unless @user.is_password?(@user_params[:validate_new_password])
+    @current_user = User.new(email: @user_params[:email], password: @user_params[:new_password]).set_token
+    flash[:errors] << "Passwords Do Not Match" unless @current_user.is_password?(@user_params[:validate_new_password])
 
-    if @user.valid? && flash[:errors].none? && @user.save
-      session[:session_token] = @user.session_token
+    if @current_user.valid? && flash[:errors].none?
+      login!
       flash[:notices] << "User Was Successfully Created"
       redirect_to users_url
 
     else
-      flash[:errors] += @user.errors.full_messages
+      flash[:errors] += @current_user.errors.full_messages
       render :new
     end
   end
 
   def update
-
+    render json: "Invalid Request", status: 401 unless @current_user
+    flash[:errors] << "Incorrect Credentials" unless @current_user.is_password?(@user_params[:password])
+    flash[:errors] << "Passwords Do Not Match" unless @user_params[:new_password] == @user_params[:validate_new_password]
+    @current_user.email, @current_user.password = @user_params[:email], @user_params[:new_password]
+    unless @current_user.valid? && flash[:errors] && @current_user.save
+      flash[:notices] << "User Was Successfully Created"
+      redirect_to users_url
+    else
+      flash[:errors] += @current_user.errors.full_messages
+      render :edit
+    end
   end
 
   def destroy
