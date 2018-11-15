@@ -1,58 +1,44 @@
 class UsersController < ApplicationController
-  before_action :set_user, only: [:show, :edit, :update, :destroy]
+  before_action :set_flash
+  before_action :set_current_user, only: [:show, :edit, :update, :destroy]
+  before_action :get_user_params, only: [:create, :update]
 
-  # GET /users
-  # GET /users.json
   def index
     @users = User.all
   end
 
-  # GET /users/1
-  # GET /users/1.json
   def show
+    return redirect_to new_session_url unless is_logged_in?
   end
 
-  # GET /users/new
   def new
+    # if user is logged in, return them to their profile
     @user = User.new
   end
 
-  # GET /users/1/edit
   def edit
+    return redirect_to new_session_url unless is_logged_in?
   end
 
-  # POST /users
-  # POST /users.json
   def create
-    @user = User.new(user_params)
+    @user = User.new(email: @user_params[:email], password: @user_params[:new_password]).set_token
+    flash[:errors] << "Passwords Do Not Match" unless @user.is_password?(@user_params[:validate_new_password])
 
-    respond_to do |format|
-      if @user.save
-        format.html { redirect_to @user, notice: 'User was successfully created.' }
-        format.json { render :show, status: :created, location: @user }
-      else
-        format.html { render :new }
-        format.json { render json: @user.errors, status: :unprocessable_entity }
-      end
+    if @user.valid? && flash[:errors].none? && @user.save
+      session[:session_token] = @user.session_token
+      flash[:notices] << "User Was Successfully Created"
+      redirect_to users_url
+
+    else
+      flash[:errors] += @user.errors.full_messages
+      render :new
     end
   end
 
-  # PATCH/PUT /users/1
-  # PATCH/PUT /users/1.json
   def update
-    respond_to do |format|
-      if @user.update(user_params)
-        format.html { redirect_to @user, notice: 'User was successfully updated.' }
-        format.json { render :show, status: :ok, location: @user }
-      else
-        format.html { render :edit }
-        format.json { render json: @user.errors, status: :unprocessable_entity }
-      end
-    end
+
   end
 
-  # DELETE /users/1
-  # DELETE /users/1.json
   def destroy
     @user.destroy
     respond_to do |format|
@@ -62,13 +48,13 @@ class UsersController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_user
-      @user = User.find(params[:id])
+
+    def set_flash
+      flash[:notices] = []
+      flash[:errors] = []
     end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def user_params
-      params.require(:user).permit(:email, :password_digest, :session_token)
+    def get_user_params
+      @user_params = params.require(:user).permit(:email, :password, :new_password, :validate_new_password) if params[:user]
     end
 end
