@@ -8,10 +8,6 @@
 
 User.destroy_all
 
-
-
-
-
 10.times do |user|
-  User.create!(email: )
+  User.create!(email: Faker::Internet.email, session_token: SecureRandom::urlsafe_base64(16), password_digest: BCrypt::Password.create('password'))
 end
