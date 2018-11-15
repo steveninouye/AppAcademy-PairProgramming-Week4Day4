@@ -34,10 +34,6 @@ class UsersController < ApplicationController
     end
   end
 
-  def logout
-
-  end
-
   def update
     render json: "Invalid Request", status: 401 unless @current_user
     flash[:errors] << "Incorrect Credentials" unless @current_user.is_password?(@user_params[:password])
@@ -55,7 +51,8 @@ class UsersController < ApplicationController
   end
 
   def destroy
-    @current_user.destroy
+    user = @current_user.destroy
+    flash[:notices] << "#{user.email} was deleted"
     redirect_to users_url
   end
 
