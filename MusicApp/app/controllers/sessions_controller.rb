@@ -1,8 +1,9 @@
 class SessionController < ApplicationController
-  before_action :set_user, only: [:show, :edit, :update, :destroy]
+  before_action :set_current_user, :set_flash
+  before_action :redirect_home_if_logged_in, only: [:new]
 
   def new
-    @user = User.new
+    
   end
 
   def create

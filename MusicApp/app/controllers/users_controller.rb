@@ -1,6 +1,7 @@
 class UsersController < ApplicationController
-  before_action :set_flash
-  before_action :set_current_user
+  before_action :set_flash, :set_current_user
+  before_action :redirect_home_if_logged_in, only: [:new]
+  before_action :redirect_if_not_logged_in, only: [:edit, :show]
   before_action :get_user_params, only: [:create, :update]
 
   def index
@@ -8,16 +9,15 @@ class UsersController < ApplicationController
   end
 
   def show
-    return redirect_to new_session_url unless @current_user
+    @user = User.find_by(id: params[:id])
   end
 
   def new
-    # if user is logged in, return them to their profile
     @current_user = User.new
   end
 
   def edit
-    return redirect_to new_session_url unless @current_user
+    
   end
 
   def create
@@ -50,21 +50,13 @@ class UsersController < ApplicationController
   end
 
   def destroy
-    @user.destroy
-    respond_to do |format|
-      format.html { redirect_to users_url, notice: 'User was successfully destroyed.' }
-      format.json { head :no_content }
-    end
+    @current_user.destroy
+    redirect_to users_url
   end
 
   private
 
-    def set_flash
-      flash[:notices] = []
-      flash[:errors] = []
-    end
-
-    def get_user_params
-      @user_params = params.require(:user).permit(:email, :password, :new_password, :validate_new_password) if params[:user]
-    end
+  def get_user_params
+    @user_params = params.require(:user).permit(:email, :password, :new_password, :validate_new_password) if params[:user]
+  end
 end
