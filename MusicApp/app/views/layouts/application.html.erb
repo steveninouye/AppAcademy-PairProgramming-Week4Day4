@@ -23,26 +23,25 @@
   </header>
   <body>
 
-    <% if flash[:errors].any? %>
-      <div id="error_explanation">
-        <h2><%= pluralize(flash[:errors].count, "error") %> prohibited this user from being saved:</h2>
+      <% if flash[:errors] && flash[:errors][0] %>
+        <div id="error_explanation">
+          <h2><%= pluralize(flash[:errors].count, "error") %> prohibited this user from being saved:</h2>
 
-        <ul>
-        <% flash[:errors].each do |message| %>
-          <li><%= message %></li>
-        <% end %>
-        </ul>
-      </div>
-    <% elsif flash[:notices].any? %>
-      <div id="error_explanation">
-        <ul>
-        <% flash[:notices].each do |message| %>
-          <li><%= message %></li>
-        <% end %>
-        </ul>
-      </div>
-    <% end %>
-
+          <ul>
+          <% flash[:errors].each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+          </ul>
+        </div>
+      <% elsif flash[:notices] && flash[:notices][0] %>
+        <div id="success_explanation">
+          <ul>
+          <% flash[:notices].each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+          </ul>
+        </div>
+      <% end %>
 
     <%= yield %>
   </body>

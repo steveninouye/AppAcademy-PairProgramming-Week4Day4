@@ -1,5 +1,6 @@
 class SessionsController < ApplicationController
-  before_action :set_current_user, :set_flash
+  before_action :set_current_user
+  before_action :set_flash, only: [:create, :destroy]
   before_action :redirect_home_if_logged_in, only: [:new]
   before_action :get_user_params, only: [:create]
 
@@ -9,11 +10,14 @@ class SessionsController < ApplicationController
 
   def create
     @current_user = User.validate_login(@user_params[:email], @user_params[:password])
+    p @current_user
     if @current_user
+      flash[:notices] << "You Have Been Logged In #{@current_user.email}"
       login!
       redirect_to users_url
     else
       flash[:errors] << "Invalid Credentials"
+      p flash[:errors]
       redirect_to new_session_url
     end
   end

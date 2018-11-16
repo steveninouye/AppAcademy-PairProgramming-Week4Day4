@@ -1,5 +1,6 @@
 class UsersController < ApplicationController
-  before_action :set_flash, :set_current_user
+  before_action :set_current_user
+  before_action :set_flash, only: [:create, :update, :destroy]
   before_action :redirect_home_if_logged_in, only: [:new]
   before_action :redirect_if_not_logged_in, only: [:edit, :show]
   before_action :get_user_params, only: [:create, :update]
@@ -23,7 +24,7 @@ class UsersController < ApplicationController
     @user = User.new(email: @user_params[:email], password: @user_params[:password]).set_token
     flash[:errors] << "Passwords Do Not Match" unless @user.is_password?(@user_params[:validate_new_password])
 
-    if @user.valid? && flash[:errors].none?
+    if @user.valid? && flash[:errors].none? && @user.save
       login!(@user)
       flash[:notices] << "User Was Successfully Created"
       redirect_to users_url

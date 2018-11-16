@@ -1,28 +1,20 @@
 class BandsController < ApplicationController
   before_action :set_band, only: [:show, :edit, :update, :destroy]
 
-  # GET /bands
-  # GET /bands.json
   def index
     @bands = Band.all
   end
 
-  # GET /bands/1
-  # GET /bands/1.json
   def show
   end
 
-  # GET /bands/new
   def new
     @band = Band.new
   end
 
-  # GET /bands/1/edit
   def edit
   end
 
-  # POST /bands
-  # POST /bands.json
   def create
     @band = Band.new(band_params)
 
@@ -37,8 +29,6 @@ class BandsController < ApplicationController
     end
   end
 
-  # PATCH/PUT /bands/1
-  # PATCH/PUT /bands/1.json
   def update
     respond_to do |format|
       if @band.update(band_params)

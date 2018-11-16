@@ -6,6 +6,7 @@
 #   movies = Movie.create([{ name: 'Star Wars' }, { name: 'Lord of the Rings' }])
 #   Character.create(name: 'Luke', movie: movies.first)
 
+Album.destroy_all
 Band.destroy_all
 User.destroy_all
 
@@ -14,5 +15,13 @@ User.destroy_all
 end
 
 10.times do |band|
-  Band.create!(name: Faker::Kpop.iii_groups)
+  band = Band.create!(name: Faker::Music.band)
+
+  rand(5).times do |album|
+    albumn = Album.create!(band_id: band.id, title: Faker::Music.album, year: rand(1900..2018), live: [false,false,true,false].sample)
+
+    rand(5..15).times do |track|
+      Track.create!(album_id: albumn.id, title: Faker::Movie.quote, ord: (track+1), lyrics: Faker::Lorem.paragraphs(3).join("\n"), bonus_track: [false,false,true,false].sample)
+    end
+  end
 end
