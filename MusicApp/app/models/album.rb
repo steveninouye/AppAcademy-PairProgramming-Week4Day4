@@ -16,9 +16,10 @@ class Album < ApplicationRecord
   after_initialize :default_values
 
   belongs_to :band
+  has_many :tracks
 
   private
-  
+
   def default_values
     self.live ||= false
   end

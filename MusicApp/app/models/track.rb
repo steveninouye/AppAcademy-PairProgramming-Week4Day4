@@ -13,4 +13,14 @@
 #
 
 class Track < ApplicationRecord
+  validates_presence_of :title, :ord, :lyrics, :album_id
+  after_initialize :default_values
+
+  belongs_to :album
+
+  private
+
+  def default_values
+    self.bonus_track ||= false
+  end
 end
